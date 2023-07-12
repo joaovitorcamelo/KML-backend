@@ -4,14 +4,15 @@ from django.http import HttpResponse, Http404
 from .models import User
 import gspread
 import json
+import os
 
 
 # Create your views here.
 
 def delete_one(request, dre):
     try:
-        file = open('./auth/credentials.json')
-        credentials = json.load(file)
+        credentials_STR = os.environ.get('CREDENTIALS')
+        credentials = ast.literal_eval(credentials_STR)
 
         email = request.session['email']
         user = User.objects.filter(email=email)
@@ -38,8 +39,8 @@ def delete_one(request, dre):
 
 def send_one(request, dre):
     try:
-        file = open('./auth/credentials.json')
-        credentials = json.load(file)
+        credentials_STR = os.environ.get('CREDENTIALS')
+        credentials = ast.literal_eval(credentials_STR)
 
         email = request.session['email']
         user = User.objects.filter(email=email)
@@ -65,8 +66,8 @@ def send_one(request, dre):
 
 def create(request):
     try:
-        file = open('./auth/credentials.json')
-        credentials = json.load(file)
+        credentials_STR = os.environ.get('CREDENTIALS')
+        credentials = ast.literal_eval(credentials_STR)
 
         email = request.session['email']
         user = User.objects.filter(email=email)
@@ -114,8 +115,8 @@ def create(request):
 
 
 def send(request):
-    file = open('./auth/credentials.json')
-    credentials = json.load(file)
+    credentials_STR = os.environ.get('CREDENTIALS')
+    credentials = ast.literal_eval(credentials_STR)
 
     email = request.session['email']
     user = User.objects.filter(email=email)
@@ -146,8 +147,8 @@ def send(request):
 
 
 def delete(request):
-    file = open('./auth/credentials.json')
-    credentials = json.load(file)
+    credentials_STR = os.environ.get('CREDENTIALS')
+    credentials = ast.literal_eval(credentials_STR)
 
     email = request.session['email']
     user = User.objects.filter(email=email)
@@ -179,8 +180,8 @@ def login(request):
         user = User.objects.filter(email=email)
 
         if user:
-            file = open('./auth/credentials.json')
-            credentials = json.load(file)
+            credentials_STR = os.environ.get('CREDENTIALS')
+            credentials = ast.literal_eval(credentials_STR)
 
             authorized_user = ast.literal_eval(user[0].user_key)
 
@@ -190,8 +191,8 @@ def login(request):
             user[0].save()
 
         else:
-            file = open('./auth/credentials.json')
-            credentials = json.load(file)
+            credentials_STR = os.environ.get('CREDENTIALS')
+            credentials = ast.literal_eval(credentials_STR)
             gc, authorized_user = gspread.oauth_from_dict(credentials)
 
             new_user = User(email=email, user_key=authorized_user)
