@@ -9,8 +9,7 @@ pip install poetry
 python manage.py collectstatic --no-input
 python manage.py migrate
 
-python manage.py createsuperuser
-JCamelo
-joaocameloalmeida@gmail.com
-j123456789
-j123456789
+if [[ $CREATE_SUPERUSER ]];
+then
+  python manage.py createsuperuser --no-input
+fi
