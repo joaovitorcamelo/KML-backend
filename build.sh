@@ -2,6 +2,7 @@
 # exit on error
 set -o errexit
 
+poetry self update
 poetry lock --no-update
 poetry install
 
