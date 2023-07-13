@@ -1,6 +1,6 @@
 import ast
 import time
-from django.http import HttpResponse, Http404, HttpResponseRedirect, HttpRequest
+from django.http import HttpResponse, Http404, JsonResponse
 from .models import User
 import gspread
 from gspread import oauth
@@ -198,7 +198,7 @@ def oauth_redirect(request):
 
         request.session['state'] = state
 
-        return HttpResponseRedirect(authorization_url)
+        return JsonResponse({'authorization_url': authorization_url})
 
 
 def oauth_callback(request):
