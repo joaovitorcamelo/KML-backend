@@ -5,7 +5,6 @@ from .models import User
 import gspread
 from gspread import oauth
 import os
-import json
 import google.oauth2.credentials
 from dotenv import load_dotenv
 import google_auth_oauthlib.flow
@@ -17,7 +16,7 @@ SCOPES = [
         'https://www.googleapis.com/auth/drive'
     ]
 
-CREDENTIALS = json.loadl(os.environ.get('CREDENTIALS'))
+CREDENTIALS = ast.literal_eval(os.environ.get('CREDENTIALS'))
 
 
 def delete_one(request, dre):
@@ -180,7 +179,6 @@ def oauth_redirect(request):
     email = request.GET.get('email')
 
     if 'email' in request.session and request.session['email'] == email:
-        request.session['email'] = email
         return HttpResponse("Bem-vindo(a) de volta ao KML!")
 
     else:
