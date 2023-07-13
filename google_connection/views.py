@@ -1,6 +1,6 @@
 import ast
 import time
-from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.http import HttpResponse, Http404, HttpResponseRedirect, HttpRequest
 from .models import User
 import gspread
 from gspread import oauth
@@ -14,6 +14,7 @@ SCOPES = [
     ]
 
 CREDENTIALS = ast.literal_eval(os.environ.get('CREDENTIALS'))
+
 
 def delete_one(request, dre):
     try:
@@ -173,23 +174,28 @@ def delete(request):
 def oauth_redirect(request):
 
     email = request.GET.get('email')
-    request.session['email'] = email
 
-    flow = google_auth_oauthlib.flow.Flow.from_client_config(
-        CREDENTIALS,
-        scopes=SCOPES
-    )
+    if 'email' in request.session and request.session['email'] == email:
+        return HttpResponse("Bem-vindo(a) de volta ao KML!")
 
-    flow.redirect_uri = '/callback'
+    else:
+        request.session['email'] = email
 
-    authorization_url, state = flow.authorization_url(
-        access_type='offline',
-        include_granted_scopes='true'
-    )
+        flow = google_auth_oauthlib.flow.Flow.from_client_config(
+            CREDENTIALS,
+            scopes=SCOPES
+        )
 
-    request.session['state'] = state
+        flow.redirect_uri = 'https://kml.onrender.com/callback'
 
-    return HttpResponseRedirect(authorization_url)
+        authorization_url, state = flow.authorization_url(
+            access_type='offline',
+            include_granted_scopes='true'
+        )
+
+        request.session['state'] = state
+
+        return HttpResponseRedirect(authorization_url)
 
 
 def oauth_callback(request):
@@ -201,12 +207,14 @@ def oauth_callback(request):
         state=state
     )
 
-    flow.redirect_uri = 'callback'
+    flow.redirect_uri = 'https://kml.onrender.com/callback'
 
-    authorization_response = request.url
+    host = request.get_host()
+    path = request.get_full_path()
+    authorization_response = host + path
     flow.fetch_token(authorization_response=authorization_response)
 
-    user_key = ast.literal_eval(flow.credentials)
+    user_key = credentials_to_dict(flow.credentials)
 
     request.session['user_key'] = user_key
 
@@ -222,8 +230,16 @@ def oauth_callback(request):
             new_user = User(email=email, user_key=user_key)
             new_user.save()
 
-        return HttpResponse("Login Efetuado.")
+        return HttpResponse("Login Efetuado. Bem-vindo(a) ao KML! Essa aba pode ser fechada.")
 
     except:
         raise Http404("Ocorreu um erro.")
 
+
+def credentials_to_dict(credentials):
+    return {'token': credentials.token,
+            'refresh_token': credentials.refresh_token,
+            'token_uri': credentials.token_uri,
+            'client_id': credentials.client_id,
+            'client_secret': credentials.client_secret,
+            'scopes': credentials.scopes}
