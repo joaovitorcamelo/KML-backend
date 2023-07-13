@@ -6,7 +6,10 @@ import gspread
 from gspread import oauth
 import os
 import google.oauth2.credentials
+from dotenv import load_dotenv
 import google_auth_oauthlib.flow
+
+load_dotenv()
 
 SCOPES = [
         'https://www.googleapis.com/auth/spreadsheets',
@@ -233,7 +236,7 @@ def oauth_callback(request):
         return HttpResponse("Login Efetuado. Bem-vindo(a) ao KML! Essa aba pode ser fechada.")
 
     except:
-        raise Http404("Ocorreu um erro.")
+        raise Http404("Shit Happens.")
 
 
 def credentials_to_dict(credentials):
