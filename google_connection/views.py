@@ -23,8 +23,8 @@ def delete_one(request, dre):
     try:
 
         email = request.session['email']
-        user = User.objects.filter(email=email)
-        authorized_user = ast.literal_eval(user[0].user_key)
+        user = User.objects.get(email=email)
+        authorized_user = ast.literal_eval(user.user_key)
 
         gc, authorized_user = gspread.oauth_from_dict(CREDENTIALS, authorized_user)
 
@@ -49,8 +49,8 @@ def send_one(request, dre):
     try:
 
         email = request.session['email']
-        user = User.objects.filter(email=email)
-        authorized_user = ast.literal_eval(user[0].user_key)
+        user = User.objects.get(email=email)
+        authorized_user = ast.literal_eval(user.user_key)
 
         gc, authorized_user = gspread.oauth_from_dict(CREDENTIALS, authorized_user)
 
@@ -74,8 +74,8 @@ def create(request):
     try:
 
         email = request.session['email']
-        user = User.objects.filter(email=email)
-        authorized_user = ast.literal_eval(user[0].user_key)
+        user = User.objects.get(email=email)
+        authorized_user = ast.literal_eval(user.user_key)
 
         gc, authorized_user = gspread.oauth_from_dict(CREDENTIALS, authorized_user)
 
@@ -121,8 +121,8 @@ def create(request):
 def send(request):
 
     email = request.session['email']
-    user = User.objects.filter(email=email)
-    authorized_user = ast.literal_eval(user[0].user_key)
+    user = User.objects.get(email=email)
+    authorized_user = ast.literal_eval(user.user_key)
 
     gc, authorized_user = gspread.oauth_from_dict(CREDENTIALS, authorized_user)
 
@@ -151,9 +151,9 @@ def send(request):
 def delete(request):
 
     email = request.session['email']
-    user = User.objects.filter(email=email)
+    user = User.objects.get(email=email)
 
-    authorized_user = ast.literal_eval(user[0].user_key)
+    authorized_user = ast.literal_eval(user.user_key)
 
     gc, authorized_user = gspread.oauth_from_dict(CREDENTIALS, authorized_user)
 
@@ -223,11 +223,15 @@ def oauth_callback(request):
 
     try:
         email = request.session['email']
-        user = User.objects.filter(email=email)
+        user = None
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            user = None
 
         if user:
-            user[0].user_key = user_key
-            user[0].save()
+            user.user_key = user_key
+            user.save()
 
         else:
             new_user = User(email=email, user_key=user_key)
