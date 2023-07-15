@@ -2,7 +2,7 @@ import ast
 import time
 
 import googleapiclient.discovery
-from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.http import HttpResponse, Http404, JsonResponse, HttpResponseRedirect
 from .models import User
 import gspread
 import os
@@ -179,7 +179,6 @@ def delete(request):
 def oauth_redirect(request):
 
     email = request.GET.get('email')
-    print(f'valor inicial do email é {email}')
 
     flow = google_auth_oauthlib.flow.Flow.from_client_config(
         CREDENTIALS,
@@ -195,15 +194,12 @@ def oauth_redirect(request):
         approval_prompt='force',
     )
 
-    print(f'essa é a url do bagulho {authorization_url}')
-
-    return HttpResponseRedirect(authorization_url)
+    return JsonResponse({'authorization_url': authorization_url})
 
 
 def oauth_callback(request):
 
     state = request.GET.get('state')
-    email = request.GET.get('login_hint')
 
     flow = google_auth_oauthlib.flow.Flow.from_client_config(
         client_config=CREDENTIALS,
@@ -212,7 +208,6 @@ def oauth_callback(request):
     )
 
     flow.redirect_uri = f'https://kml.onrender.com/callback'
-
 
     host = request.get_host()
     path = request.get_full_path()
@@ -233,7 +228,6 @@ def oauth_callback(request):
             user[0].save()
 
         else:
-            print(f'o email é {email}')
             new_user = User(email=email, user_key=user_key)
             new_user.save()
 
