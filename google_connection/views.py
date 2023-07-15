@@ -2,13 +2,10 @@ import ast
 import time
 
 import googleapiclient.discovery
-import httplib2
-from django.http import HttpResponse, Http404, JsonResponse, HttpResponseRedirect
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from .models import User
 import gspread
-from gspread import oauth
 import os
-import google.oauth2.credentials
 from dotenv import load_dotenv
 import google_auth_oauthlib.flow
 
@@ -189,12 +186,13 @@ def oauth_redirect(request):
         scopes=SCOPES
     )
 
-    flow.redirect_uri = f'https://127.0.0.1:8000/callback'
+    flow.redirect_uri = f'https://kml.onrender.com/callback'
 
     authorization_url, state = flow.authorization_url(
         access_type='offline',
         login_hint=email,
-        include_granted_scopes='true'
+        include_granted_scopes='true',
+        approval_prompt='force',
     )
 
     print(f'essa é a url do bagulho {authorization_url}')
@@ -213,7 +211,7 @@ def oauth_callback(request):
         state=state
     )
 
-    flow.redirect_uri = f'https://127.0.0.1:8000/callback'
+    flow.redirect_uri = f'https://kml.onrender.com/callback'
 
 
     host = request.get_host()
