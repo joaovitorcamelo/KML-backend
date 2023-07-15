@@ -41,6 +41,8 @@ def delete_one(request, dre):
         dre_sh = gc.open(dre)
         gc.del_spreadsheet(dre_sh.id)
 
+        time.sleep(10)
+
         return HttpResponse("Removido com sucesso.")
 
     except:
@@ -65,6 +67,8 @@ def send_one(request, dre):
         dre_sh = gc.open(dre)
         dre_sh.share(email_address=email, perm_type='user', role='reader', notify=True,
                      email_message="Notas atualizadas.")
+
+        time.sleep(10)
 
         return HttpResponse("Adicionado com enviado!")
 
@@ -115,6 +119,9 @@ def create(request):
                     new_worksheet.update_title("Notas " + dre)
                     new_worksheet.insert_rows([header, row], row=1)
 
+                time.sleep(10)
+
+
         return HttpResponse("Planilhas criadas com sucesso!")
     except Exception:
         raise Exception
@@ -131,6 +138,8 @@ def send(request):
     sh = gc.open('Medicina 259')
     worksheet = sh.sheet1
     list_rows = worksheet.get_all_values()
+
+    time.sleep(10)
 
     for i, row in enumerate(list_rows):
         dre = row[0]
@@ -162,6 +171,8 @@ def delete(request):
     sh = gc.open('Medicina 259')
     worksheet = sh.sheet1
     list_rows = worksheet.get_all_values()
+
+    time.sleep(10)
 
     for i, row in enumerate(list_rows):
         dre = row[0]
