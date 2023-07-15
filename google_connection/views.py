@@ -1,6 +1,9 @@
 import ast
 import time
-from django.http import HttpResponse, Http404, JsonResponse
+
+import googleapiclient.discovery
+import httplib2
+from django.http import HttpResponse, Http404, JsonResponse, HttpResponseRedirect
 from .models import User
 import gspread
 from gspread import oauth
@@ -13,7 +16,9 @@ load_dotenv()
 
 SCOPES = [
         'https://www.googleapis.com/auth/spreadsheets',
-        'https://www.googleapis.com/auth/drive'
+        'https://www.googleapis.com/auth/drive',
+        'https://www.googleapis.com/auth/userinfo.email',
+        'openid'
     ]
 
 CREDENTIALS = ast.literal_eval(os.environ.get('CREDENTIALS'))
@@ -114,8 +119,8 @@ def create(request):
                     new_worksheet.insert_rows([header, row], row=1)
 
         return HttpResponse("Planilhas criadas com sucesso!")
-    except:
-        raise Http404("Um erro aconteceu. Tente novamente!")
+    except Exception:
+        raise Exception
 
 
 def send(request):
@@ -177,13 +182,14 @@ def delete(request):
 def oauth_redirect(request):
 
     email = request.GET.get('email')
+    print(f'valor inicial do email é {email}')
 
     flow = google_auth_oauthlib.flow.Flow.from_client_config(
         CREDENTIALS,
         scopes=SCOPES
     )
 
-    flow.redirect_uri = f'https://kml.onrender.com/callback'
+    flow.redirect_uri = f'https://127.0.0.1:8000/callback'
 
     authorization_url, state = flow.authorization_url(
         access_type='offline',
@@ -191,7 +197,9 @@ def oauth_redirect(request):
         include_granted_scopes='true'
     )
 
-    return JsonResponse({'authorization_url': authorization_url})
+    print(f'essa é a url do bagulho {authorization_url}')
+
+    return HttpResponseRedirect(authorization_url)
 
 
 def oauth_callback(request):
@@ -205,14 +213,19 @@ def oauth_callback(request):
         state=state
     )
 
-    flow.redirect_uri = 'https://kml.onrender.com/callback'
+    flow.redirect_uri = f'https://127.0.0.1:8000/callback'
+
 
     host = request.get_host()
     path = request.get_full_path()
     authorization_response = host + path
     flow.fetch_token(authorization_response=authorization_response)
 
-    user_key = credentials_to_dict(flow.credentials)
+    credentials = flow.credentials
+    user_key = credentials_to_dict(credentials)
+    service = googleapiclient.discovery.build('oauth2', 'v2', credentials=credentials)
+    result = service.userinfo().get().execute()
+    email = result['email']
 
     try:
         user = User.objects.filter(email=email)
@@ -222,13 +235,14 @@ def oauth_callback(request):
             user[0].save()
 
         else:
+            print(f'o email é {email}')
             new_user = User(email=email, user_key=user_key)
             new_user.save()
 
         return HttpResponse("Login Efetuado. Bem-vindo(a) ao KML! Essa aba pode ser fechada.")
 
-    except:
-        raise Http404("Shit Happens.")
+    except Exception:
+        raise Exception
 
 
 def credentials_to_dict(credentials):

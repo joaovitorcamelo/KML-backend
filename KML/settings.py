@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'google_connection',
     'corsheaders',
+    'django_extensions'
 ]
 
 MIDDLEWARE = [
@@ -62,6 +63,8 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = ['http://localhost:3000']
+
+CORS_ORIGIN_WHITELIST = ['https://accounts.google.com']
 
 ROOT_URLCONF = 'KML.urls'
 
@@ -90,13 +93,15 @@ WSGI_APPLICATION = 'KML.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        # Feel free to alter this value to suit your needs.
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600
-    )
+  'default': {
+    'ENGINE': 'django.db.backends.postgresql',
+    'NAME': 'wuhzbffv',
+    'USER': 'wuhzbffv',
+    'PASSWORD': 'hyftyAQW2UjXEHigfp-qZfeudAe_1LqK',
+    'HOST': 'silly.db.elephantsql.com',
+    'PORT': 5432
+  }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
