@@ -86,7 +86,7 @@ def create(request):
         list_rows = worksheet.get_all_values()
         header = list_rows[0]
 
-        time.sleep(5)
+        time.sleep(10)
 
         for i, row in enumerate(list_rows):
             dre = row[0].strip()
@@ -145,7 +145,7 @@ def send(request):
                 email_student, perm_type='user', role='reader', notify=True, email_message="Notas atualizadas."
             )
 
-            time.sleep(5)
+            time.sleep(10)
 
     return HttpResponse("Envio realizado com sucesso!")
 
@@ -171,7 +171,7 @@ def delete(request):
             id_sh = gc.open(dre).id
             gc.del_spreadsheet(id_sh)
 
-            time.sleep(5)
+            time.sleep(10)
 
     return HttpResponse("Remoção realizada com sucesso!")
 
