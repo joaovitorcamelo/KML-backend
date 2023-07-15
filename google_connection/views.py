@@ -18,6 +18,8 @@ SCOPES = [
 
 CREDENTIALS = ast.literal_eval(os.environ.get('CREDENTIALS'))
 
+state = None
+
 
 def delete_one(request, dre):
     try:
@@ -202,7 +204,6 @@ def oauth_redirect(request):
 
 
 def oauth_callback(request):
-    state = request.session['state']
 
     flow = google_auth_oauthlib.flow.Flow.from_client_config(
         client_config=CREDENTIALS,
