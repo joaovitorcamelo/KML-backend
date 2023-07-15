@@ -18,13 +18,11 @@ SCOPES = [
 
 CREDENTIALS = ast.literal_eval(os.environ.get('CREDENTIALS'))
 
-state = None
-
 
 def delete_one(request, dre):
     try:
 
-        email = request.session['email']
+        email = request.GET.get('email')
         user = User.objects.get(email=email)
         authorized_user = ast.literal_eval(user.user_key)
 
@@ -50,7 +48,7 @@ def delete_one(request, dre):
 def send_one(request, dre):
     try:
 
-        email = request.session['email']
+        email = request.GET.get('email')
         user = User.objects.get(email=email)
         authorized_user = ast.literal_eval(user.user_key)
 
@@ -75,7 +73,7 @@ def send_one(request, dre):
 def create(request):
     try:
 
-        email = request.session['email']
+        email = request.GET.get('email')
         user = User.objects.get(email=email)
         authorized_user = ast.literal_eval(user.user_key)
 
@@ -122,7 +120,7 @@ def create(request):
 
 def send(request):
 
-    email = request.session['email']
+    email = request.GET.get('email')
     user = User.objects.get(email=email)
     authorized_user = ast.literal_eval(user.user_key)
 
@@ -152,7 +150,7 @@ def send(request):
 
 def delete(request):
 
-    email = request.session['email']
+    email = request.GET.get('email')
     user = User.objects.get(email=email)
 
     authorized_user = ast.literal_eval(user.user_key)
@@ -180,26 +178,26 @@ def oauth_redirect(request):
 
     email = request.GET.get('email')
 
-    request.session['email'] = email
-
     flow = google_auth_oauthlib.flow.Flow.from_client_config(
         CREDENTIALS,
         scopes=SCOPES
     )
 
-    flow.redirect_uri = 'https://kml.onrender.com/callback'
+    flow.redirect_uri = f'https://kml.onrender.com/callback'
 
     authorization_url, state = flow.authorization_url(
         access_type='offline',
+        login_hint=email,
         include_granted_scopes='true'
     )
-
-    request.session['state'] = state
 
     return JsonResponse({'authorization_url': authorization_url})
 
 
 def oauth_callback(request):
+
+    state = request.GET.get('state')
+    email = request.GET.get('login_hint')
 
     flow = google_auth_oauthlib.flow.Flow.from_client_config(
         client_config=CREDENTIALS,
@@ -216,19 +214,12 @@ def oauth_callback(request):
 
     user_key = credentials_to_dict(flow.credentials)
 
-    request.session['user_key'] = user_key
-
     try:
-        email = request.session['email']
-        user = None
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            user = None
+        user = User.objects.filter(email=email)
 
         if user:
-            user.user_key = user_key
-            user.save()
+            user[0].user_key = user_key
+            user[0].save()
 
         else:
             new_user = User(email=email, user_key=user_key)
