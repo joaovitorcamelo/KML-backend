@@ -180,27 +180,23 @@ def oauth_redirect(request):
 
     email = request.GET.get('email')
 
-    if 'email' in request.session and request.session['email'] == email:
-        return HttpResponse("Bem-vindo(a) de volta ao KML!")
+    request.session['email'] = email
 
-    else:
-        request.session['email'] = email
+    flow = google_auth_oauthlib.flow.Flow.from_client_config(
+        CREDENTIALS,
+        scopes=SCOPES
+    )
 
-        flow = google_auth_oauthlib.flow.Flow.from_client_config(
-            CREDENTIALS,
-            scopes=SCOPES
-        )
+    flow.redirect_uri = 'https://kml.onrender.com/callback'
 
-        flow.redirect_uri = 'https://kml.onrender.com/callback'
+    authorization_url, state = flow.authorization_url(
+        access_type='offline',
+        include_granted_scopes='true'
+    )
 
-        authorization_url, state = flow.authorization_url(
-            access_type='offline',
-            include_granted_scopes='true'
-        )
+    request.session['state'] = state
 
-        request.session['state'] = state
-
-        return JsonResponse({'authorization_url': authorization_url})
+    return JsonResponse({'authorization_url': authorization_url})
 
 
 def oauth_callback(request):
