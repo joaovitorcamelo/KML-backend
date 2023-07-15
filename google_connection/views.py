@@ -41,7 +41,7 @@ def delete_one(request, dre):
         dre_sh = gc.open(dre)
         gc.del_spreadsheet(dre_sh.id)
 
-        time.sleep(10)
+        time.sleep(5)
 
         return HttpResponse("Removido com sucesso.")
 
@@ -68,7 +68,7 @@ def send_one(request, dre):
         dre_sh.share(email_address=email, perm_type='user', role='reader', notify=True,
                      email_message="Notas atualizadas.")
 
-        time.sleep(10)
+        time.sleep(5)
 
         return HttpResponse("Adicionado com enviado!")
 
@@ -90,7 +90,7 @@ def create(request):
         list_rows = worksheet.get_all_values()
         header = list_rows[0]
 
-        time.sleep(10)
+        time.sleep(5)
 
         for i, row in enumerate(list_rows):
             dre = row[0].strip()
@@ -119,7 +119,7 @@ def create(request):
                     new_worksheet.update_title("Notas " + dre)
                     new_worksheet.insert_rows([header, row], row=1)
 
-                time.sleep(10)
+                time.sleep(5)
 
 
         return HttpResponse("Planilhas criadas com sucesso!")
@@ -139,7 +139,7 @@ def send(request):
     worksheet = sh.sheet1
     list_rows = worksheet.get_all_values()
 
-    time.sleep(10)
+    time.sleep(5)
 
     for i, row in enumerate(list_rows):
         dre = row[0]
@@ -154,7 +154,7 @@ def send(request):
                 email_student, perm_type='user', role='reader', notify=True, email_message="Notas atualizadas."
             )
 
-            time.sleep(10)
+            time.sleep(5)
 
     return HttpResponse("Envio realizado com sucesso!")
 
@@ -172,7 +172,7 @@ def delete(request):
     worksheet = sh.sheet1
     list_rows = worksheet.get_all_values()
 
-    time.sleep(10)
+    time.sleep(5)
 
     for i, row in enumerate(list_rows):
         dre = row[0]
@@ -182,7 +182,7 @@ def delete(request):
             id_sh = gc.open(dre).id
             gc.del_spreadsheet(id_sh)
 
-            time.sleep(10)
+            time.sleep(5)
 
     return HttpResponse("Remoção realizada com sucesso!")
 
